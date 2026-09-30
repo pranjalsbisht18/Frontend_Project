@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/restaurants",
+      "destination": "/"
+    },
+    {
+      "source": "/restaurant",
+      "destination": "/"
+    },
+    {
+      "source": "/city/delhi/:id",
+      "destination": "/"
+    },
+    {
+      "source": "/city/delhi/:id/search",
+      "destination": "/"
+    },
+    {
+      "source": "/Checkout",
+      "destination": "/"
+    }
+  ]
+}

@@ -1,25 +1,49 @@
 import { useEffect, useState } from "react";
 import RestCard from "./RestCard";
 import Shimmer from "./Shimmer";
+import { extractRestaurants, fetchApi } from "../api";
 
 export default function Restaurant(){
-   
-    const [restData, setRestData] = useState([])
 
-    useEffect(()=>{
-     async function fetchData() {
-        const swiggyAPI = "/api/swiggy/dapi/restaurants/list/v5?lat=28.7040592&lng=77.10249019999999&is-seo-homepage-enabled=true";
-        const response = await fetch(swiggyAPI);
-        const data = await response.json();
-        const restaurants = data?.data?.cards?.[1]?.card?.card?.gridElements?.infoWithStyle?.restaurants ?? [];
-        setRestData(restaurants);
-     }
+    const [restData, setRestData] = useState([]);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
-     fetchData();
-    },[])
+    useEffect(() => {
+        const controller = new AbortController();
 
-    if(restData.length === 0)
-        return <Shimmer></Shimmer>
+        async function fetchData() {
+            try {
+                const data = await fetchApi(
+                    "/api/restaurants?lat=28.7040592&lng=77.10249019999999",
+                    { signal: controller.signal }
+                );
+                setRestData(extractRestaurants(data));
+                setError("");
+            } catch (fetchError) {
+                if (fetchError.name !== "AbortError") {
+                    console.error("Could not load restaurants:", fetchError);
+                    setError(fetchError.message || "Restaurants could not be loaded. Please try again later.");
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        fetchData();
+        return () => controller.abort();
+    }, []);
+
+    if (isLoading)
+        return <Shimmer />;
+
+    if (error)
+        return <p className="w-[80%] mx-auto mt-20 text-red-600">{error}</p>;
+
+    if (restData.length === 0)
+        return <p className="w-[80%] mx-auto mt-20">No restaurants were returned for this location.</p>;
 
     return (
         <div className="w-[80%] mx-auto mt-20">

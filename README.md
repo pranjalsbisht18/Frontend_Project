@@ -30,21 +30,28 @@ The backend, not the browser, requests Swiggy's upstream API.
 ## Deploy to Vercel
 
 The project includes Vercel serverless handlers in `api/` as well as the
-standalone Express server. For the existing Vercel site, deploy the project root
-(not `backend/`) with:
+standalone Express server. In Vercel Project Settings → Build and Deployment,
+set **Root Directory** to the repository directory containing `package.json`,
+`vercel.json`, and `api/` (not `dist/` and not `backend/`). Enable including the
+root directory in the deployment if Vercel asks. For this project, use:
 
 - Build command: `npm run build`
 - Output directory: `dist`
 - `SWIGGY_API_BASE_URL=https://www.swiggy.com` (optional; this is the default)
 
 Do not set `VITE_API_BASE_URL` for the same-origin Vercel deployment. The
-frontend calls `/api/...` on its own Vercel domain, and the serverless functions
-handle those routes. `vercel.json` rewrites the app's restaurant/menu routes to
-the SPA entry point so refreshing a nested route does not return Vercel 404.
-After adding these files, redeploy the project. Check
+frontend calls `/api/...` on its own Vercel domain, and Vercel packages the
+`api/` directory as serverless functions. `vercel.json` rewrites restaurant and
+menu page routes to the SPA entry point. After committing/pushing the code and
+redeploying the latest commit, check
 `https://your-domain.example/api/health` returns `{"status":"ok"}` and
 `https://your-domain.example/api/restaurants?lat=28.7040592&lng=77.10249019999999`
 returns JSON.
+
+If `/api/health` still returns Vercel's `404: NOT_FOUND`, verify the deployment
+uses the latest Git commit and that Vercel's Root Directory is the folder that
+contains `api/`. A 404 here means the Vercel function was not included in the
+deployment; it is not a CORS or Swiggy response issue.
 
 If the API is hosted on a different domain, set `VITE_API_BASE_URL` at build
 time to the backend's public HTTPS origin.

@@ -1,4 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/restaurants",
@@ -9,11 +13,7 @@
       "destination": "/"
     },
     {
-      "source": "/city/delhi/:id",
-      "destination": "/"
-    },
-    {
-      "source": "/city/delhi/:id/search",
+      "source": "/city/delhi/:path*",
       "destination": "/"
     },
     {
